@@ -141,14 +141,19 @@ export const restoreUsers = async (
         const wrapped = limiter.wrap(async () =>
           cognito.adminCreateUser(params).promise(),
         );
-        await wrapped();
+        try {
+          await wrapped();
+        } catch (error) {
+          if (skipExisting) {
+            console.log(
+              'Skipping existing user with phone_number ' + params.Username,
+            );
+          } else {
+            throw error;
+          }
+        }
       }
     } catch (error) {
-      // throw the error if
-      // 1.  skipExisting is false
-      // 2.  the code does not equal username exists
-
-      //if (!skipExisting || error.code !== 'UsernameExistsException') {
       if (!(skipExisting && error.code === 'UsernameExistsException')) {
         throw error;
       }
