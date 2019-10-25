@@ -144,7 +144,7 @@ export const restoreUsers = async (
         try {
           await wrapped();
         } catch (error) {
-          if (skipExisting) {
+          if (skipExisting && error.code === 'UsernameExistsException') {
             console.log(
               'Skipping existing user with phone_number ' + params.Username,
             );
